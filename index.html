@@ -6,9 +6,10 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <script type="text/javascript" src="src/js/plotly-latest.min.js"></script>
-    <script type="text/javascript" src="src/js/jquery.min.js"></script>
-    <script type="text/javascript" src="src/js/dragresize.js"></script>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="./src/js/dragresize.js"></script>
     <style type="text/css">
         .drsElement {
             position: absolute;
@@ -89,8 +90,8 @@
     <span id='about'>
         这是一个使用妈船api获取数据来作图的工具，与妈船和白菜bot没有任何关系
     </span>
-    </br>
-    </br>
+    <br>
+    <br>
     <div id='settings'>
         <span>预置：</span><select id='savedPlayer'></select>
         <span>昵称: </span><input id='saved-name' value='Exsper'></input>
@@ -98,8 +99,8 @@
         <span>起始日期: </span><input id='saved-start' value='2018-02-16'></input>
         <button id='savePlayer'>保存</button>
         <button id='delPlayer'>删除</button>
-        </br>
-        </br>
+        <br>
+        <br>
         <span>昵称: </span><input id='name' value='abcdef'></input>
         <span>uid: </span><input id='uid' value='123456'></input>
         <span>模式: </span><select id='mode'>
@@ -111,15 +112,15 @@
         <span>起始日期：</span><input type="text" id='startDate' value='2012-01-01'></input>
         <span>截止日期：</span><input type="text" id='endDate' value='2012-01-01'></input>
         <button id='getDataBtn'>获取数据</button>
-        </br>
-        </br>
+        <br>
+        <br>
         <span>当前状态：</span><span id='getDataConsole'>请先获取数据</span>
-        </br>
-        </br>
+        <br>
+        <br>
         <table id='playerlist' style="text-align: center;">
         </table>
-        </br>
-        </br>
+        <br>
+        <br>
         <span>x轴: </span><select id='xcor' disabled='disabled'>
             <option value="dateString">日期</option>
             <option value="playcount">pc</option>
@@ -146,8 +147,8 @@
         </select>
         <button id='drawBtn' disabled='disabled'>绘制折线图</button>
     </div>
-    </br>
-    </br>
+    <br>
+    <br>
     <div id='graph' class="drsElement drsMoveHandle" style='width: 1000px; height: 600px; border: 1px solid; bottom: 0px; right: 0px;'></div>
 
     <script type="text/javascript">
