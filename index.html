@@ -7,7 +7,6 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="shortcut icon" href="./favicon.ico" />
-    <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script type="text/javascript" src="./src/js/dragresize.js"></script>
     <style type="text/css">
@@ -149,7 +148,8 @@
     </div>
     <br>
     <br>
-    <div id='graph' class="drsElement drsMoveHandle" style='width: 1000px; height: 600px; border: 1px solid; bottom: 0px; right: 0px;'></div>
+    <div id='graph' class="drsElement drsMoveHandle"
+        style='width: 1000px; height: 600px; border: 1px solid; bottom: 0px; right: 0px;'></div>
 
     <script type="text/javascript">
         var savedPlayers = JSON.parse(window.localStorage.getItem("savedPlayers")) || {};
@@ -198,7 +198,6 @@
         })
 
         updateSavedPlayers();
-
     </script>
 
     <script type="text/javascript">
@@ -370,44 +369,10 @@
             }, 5000);
         });
 
-        $("#drawBtn").click(function () {
-            if (mothershipData.length <= 0) $("#graph").text("请先获取数据");
-            else {
-                const xName = $("#xcor").val();
-                const xTitle = $("#xcor option[value=" + xName + "]").text()
-                const yName = $("#ycor").val();
-                const yTitle = $("#ycor option[value=" + yName + "]").text()
-                let datas = [];
-                $("#playerlist tr:gt(0)").each(function (index, tr) {
-                    let checkbox = $("input:checkbox", tr);
-                    if (checkbox.is(':checked')) {
-                        let index = parseInt(checkbox.attr("id").split("-")[1]);
-                        datas.push(mothershipData[index].getTrace(xName, yName));
-                    }
-                });
-                const layout = {
-                    title: {
-                        text: xTitle + "-" + yTitle
-                    },
-                    xaxis: {
-                        title: {
-                            text: xTitle
-                        }
-                    },
-                    yaxis: {
-                        title: {
-                            text: yTitle
-                        }
-                    }
-                };
-                Plotly.newPlot('graph', datas, layout, { scrollZoom: true });
-            }
-        });
-
     </script>
 
     <script type="text/javascript">
-        var dragresize = new DragResize('dragresize',
+        let dragresize = new DragResize('dragresize',
             { minWidth: 50, minHeight: 50, minLeft: 20, minTop: 20, maxLeft: 10000, maxTop: 10000 });
         dragresize.isElement = function (elm) {
             if (elm.className && elm.className.indexOf('drsElement') > -1) return true;
@@ -417,6 +382,60 @@
         };
         dragresize.apply(document);
     </script>
+
+    <script type="text/javascript">
+        function downloadJSAtOnload() {
+            $("#drawBtn").text("加载中，请稍等...");
+            let element = document.createElement("script");
+            element.src = "https://cdn.plot.ly/plotly-latest.min.js";
+            element.onload = function () {
+                $("#drawBtn").text("绘制折线图");
+                $("#drawBtn").click(function () {
+                    if (mothershipData.length <= 0) $("#graph").text("请先获取数据");
+                    else {
+                        const xName = $("#xcor").val();
+                        const xTitle = $("#xcor option[value=" + xName + "]").text()
+                        const yName = $("#ycor").val();
+                        const yTitle = $("#ycor option[value=" + yName + "]").text()
+                        let datas = [];
+                        $("#playerlist tr:gt(0)").each(function (index, tr) {
+                            let checkbox = $("input:checkbox", tr);
+                            if (checkbox.is(':checked')) {
+                                let index = parseInt(checkbox.attr("id").split("-")[1]);
+                                datas.push(mothershipData[index].getTrace(xName, yName));
+                            }
+                        });
+                        const layout = {
+                            title: {
+                                text: xTitle + "-" + yTitle
+                            },
+                            xaxis: {
+                                title: {
+                                    text: xTitle
+                                }
+                            },
+                            yaxis: {
+                                title: {
+                                    text: yTitle
+                                }
+                            }
+                        };
+                        Plotly.newPlot('graph', datas, layout, { scrollZoom: true });
+                    }
+                });
+            }
+
+            document.body.appendChild(element);
+        }
+        if (window.addEventListener)
+            window.addEventListener("load", downloadJSAtOnload, false);
+        else if (window.attachEvent)
+            window.attachEvent("onload", downloadJSAtOnload);
+        else window.onload = downloadJSAtOnload;
+
+    </script>
+
+
 
 </body>
 
