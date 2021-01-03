@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<title>mothership-chart</title>
+<noscript>Your browser does not support JavaScript!</noscript>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script type="text/javascript" src="src/js/plotly-latest.min.js"></script>
+    <script type="text/javascript" src="src/js/jquery.min.js"></script>
+    <script type="text/javascript" src="src/js/dragresize.js"></script>
+    <style type="text/css">
+        .drsElement {
+            position: absolute;
+            border: 1px solid #333;
+        }
+
+        .drsMoveHandle {
+            height: 20px;
+            background-color: #FFF;
+            border-bottom: 1px solid #666;
+            cursor: move;
+        }
+
+        .dragresize {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            font-size: 1px;
+            background: #EEE;
+            border: 1px solid #333;
+        }
+
+        .dragresize-tl {
+            top: -8px;
+            left: -8px;
+            cursor: nw-resize;
+        }
+
+        .dragresize-tm {
+            top: -8px;
+            left: 50%;
+            margin-left: -4px;
+            cursor: n-resize;
+        }
+
+        .dragresize-tr {
+            top: -8px;
+            right: -8px;
+            cursor: ne-resize;
+        }
+
+        .dragresize-ml {
+            top: 50%;
+            margin-top: -4px;
+            left: -8px;
+            cursor: w-resize;
+        }
+
+        .dragresize-mr {
+            top: 50%;
+            margin-top: -4px;
+            right: -8px;
+            cursor: e-resize;
+        }
+
+        .dragresize-bl {
+            bottom: -8px;
+            left: -8px;
+            cursor: sw-resize;
+        }
+
+        .dragresize-bm {
+            bottom: -8px;
+            left: 50%;
+            margin-left: -4px;
+            cursor: s-resize;
+        }
+
+        .dragresize-br {
+            bottom: -8px;
+            right: -8px;
+            cursor: se-resize;
+        }
+    </style>
+</head>
+
+<body>
+    <span id='about'>
+        这是一个使用妈船api获取数据来作图的工具，与妈船和白菜bot没有任何关系
+    </span>
+    </br>
+    </br>
+    <div id='settings'>
+        <span>预置：</span><select id='savedPlayer'></select>
+        <span>昵称: </span><input id='saved-name' value='Exsper'></input>
+        <span>uid: </span><input id='saved-uid' value='2360046'></input>
+        <span>起始日期: </span><input id='saved-start' value='2018-02-16'></input>
+        <button id='savePlayer'>保存</button>
+        <button id='delPlayer'>删除</button>
+        </br>
+        </br>
+        <span>昵称: </span><input id='name' value='abcdef'></input>
+        <span>uid: </span><input id='uid' value='123456'></input>
+        <span>模式: </span><select id='mode'>
+            <option value="0">Standard</option>
+            <option value="1">Taiko</option>
+            <option value="2">Catch The Beat</option>
+            <option value="3">Mania</option>
+        </select>
+        <span>起始日期：</span><input type="text" id='startDate' value='2012-01-01'></input>
+        <span>截止日期：</span><input type="text" id='endDate' value='2012-01-01'></input>
+        <button id='getDataBtn'>获取数据</button>
+        </br>
+        </br>
+        <span>当前状态：</span><span id='getDataConsole'>请先获取数据</span>
+        </br>
+        </br>
+        <table id='playerlist' style="text-align: center;">
+        </table>
+        </br>
+        </br>
+        <span>x轴: </span><select id='xcor' disabled='disabled'>
+            <option value="dateString">日期</option>
+            <option value="playcount">pc</option>
+            <option value="tth">tth</option>
+            <option value="rankedscore">ranked 总分</option>
+            <option value="totalscore">total 总分</option>
+            <option value="level">等级</option>
+        </select>
+        <span>y轴：</span><select id='ycor' disabled='disabled'>
+            <option value="pp">pp</option>
+            <option value="rankworld">rank</option>
+            <option value="accuracy">acc</option>
+            <option value="playcount">pc</option>
+            <option value="tth">tth</option>
+            <option value="rankedscore">ranked 总分</option>
+            <option value="totalscore">total 总分</option>
+            <option value="level">等级</option>
+            <option value="SS">SS总数</option>
+            <option value="S">S总数</option>
+            <option value="A">A总数</option>
+            <option value="count50">50总数</option>
+            <option value="count100">100总数</option>
+            <option value="count300">300总数</option>
+        </select>
+        <button id='drawBtn' disabled='disabled'>绘制折线图</button>
+    </div>
+    </br>
+    </br>
+    <div id='graph' class="drsElement drsMoveHandle" style='width: 1000px; height: 600px; border: 1px solid; bottom: 0px; right: 0px;'></div>
+
+    <script type="text/javascript">
+        var savedPlayers = JSON.parse(window.localStorage.getItem("savedPlayers")) || {};
+
+        function getPlaterName(uid) {
+            return savedPlayers[uid].name || null;
+        }
+
+        function updateSavedPlayers() {
+            $("#savedPlayer").empty();
+            $("#savedPlayer").append("<option value=0 style='display: none'></option>");
+            for (let key in savedPlayers) {
+                $("#savedPlayer").append(`<option value=${savedPlayers[key].uid} style='width: 100px'>${savedPlayers[key].name}</option>`);
+            }
+        }
+
+        function saveSavedPlayers() {
+            window.localStorage.setItem("savedPlayers", JSON.stringify(savedPlayers));
+        }
+
+        $('#savedPlayer').change(function () {
+            if ($(this).val()) {
+                const uid = $(this).find('option:selected').val();
+                const player = savedPlayers[uid];
+                $('#name').val(player.name);
+                $('#uid').val(player.uid);
+                $('#startDate').val(player.startDate);
+            }
+        });
+
+        $('#savePlayer').click(function () {
+            let player = {};
+            player.name = $('#saved-name').val();
+            player.uid = $('#saved-uid').val();
+            player.startDate = $('#saved-start').val();
+            savedPlayers[player.uid] = player;
+            updateSavedPlayers();
+            saveSavedPlayers();
+            $('#savedPlayer').val(player.uid);
+        })
+
+        $('#delPlayer').click(function () {
+            delete savedPlayers[$('#saved-uid').val()];
+            updateSavedPlayers();
+            saveSavedPlayers();
+        })
+
+        updateSavedPlayers();
+
+    </script>
+
+    <script type="text/javascript">
+        var mothershipData = [];
+
+        function getDateString(date, isApi = false) {
+            const year = date.getFullYear().toString();
+            let month = (date.getMonth() + 1).toString();
+            if (month.length === 1) month = "0" + month;
+            let day = date.getDate().toString();
+            if (day.length === 1) day = "0" + day;
+            return (isApi) ? year + month + day : year + "-" + month + "-" + day;
+        }
+
+        $('#endDate').val(getDateString(new Date()));
+
+        class Line {
+            constructor(lineData) {
+                this.accuracy = parseFloat(lineData.accuracy); // 99.96505
+                this.count50 = parseInt(lineData.count50);
+                this.count100 = parseInt(lineData.count100);
+                this.count300 = parseInt(lineData.count300);
+                this.tth = this.count50 + this.count100 + this.count300;
+                // this.countRankS = parseInt(lineData.countRankS);
+                // this.countRankSh = parseInt(lineData.countRankSh);
+                // this.countRankSs = parseInt(lineData.countRankSs);
+                // this.countRankSsh = parseInt(lineData.countRankSsh);
+                // this.S = this.countRankSh + this.countRankS;
+                // this.SS = this.countRankSsh + this.countRankSs;
+                this.A = parseInt(lineData.countRankA);
+                this.S = parseInt(lineData.countRankS + lineData.countRankSh);
+                this.SS = parseInt(lineData.countRankSs + lineData.countRankSsh);
+                this.level = parseFloat(lineData.level);
+                this.playcount = parseInt(lineData.playcount);
+                this.rankworld = parseInt(lineData.ppRank);
+                this.pp = parseInt(lineData.ppRaw);
+                this.rankedscore = parseInt(lineData.rankedScore);
+                this.totalscore = parseInt(lineData.totalScore);
+                this.dateString = lineData.queryDate.year + "-" + lineData.queryDate.month + "-" + lineData.queryDate.day;
+                this.date = new Date(this.dateString);
+            }
+        }
+
+        class UserFull {
+            /**
+             * @param {*} data
+             * @param {Date} startDate
+             * @param {Date} endDate
+             */
+            constructor(data, startDate, endDate) {
+                this.lines = data.filter((d) => d).map((lineData) => new Line(lineData)).filter((line) => {
+                    return (startDate <= line.date && line.date <= endDate);
+                }).sort((a, b) => a.date - b.date);
+            }
+
+            getPoints(xName, yName) {
+                let x = [];
+                let y = [];
+                this.lines.map((line) => {
+                    x.push(line[xName]);
+                    y.push(line[yName]);
+                });
+                return { x, y };
+            }
+        }
+
+        class DrawInfo {
+            /**
+             * @param {String} uid
+             * @param {UserFull} userfull
+             * @param {String} dataType
+             * @param {String} name
+            */
+            constructor(uid, userfull, dataType, name) {
+                this.uid = uid;
+                this.userfull = userfull;
+                this.dataType = dataType;
+                this.name = name || uid;
+            }
+
+            setName(name) {
+                this.name = name;
+            }
+
+            getTrace(xName, yName) {
+                const points = this.userfull.getPoints(xName, yName);
+                return { "x": points.x, "y": points.y, name: this.name, showlegend: true, "type": "scatter" };
+            }
+        }
+
+        function updateTable() {
+            const table = $("#playerlist");
+            table.empty();
+            const ttr = $("<tr>", { style: "background-color:#9898f3; line-height:30px;" });
+            $("<td>", { text: "选择" }).appendTo(ttr);
+            $("<td>", { text: "uid" }).appendTo(ttr);
+            $("<td>", { text: "数据" }).appendTo(ttr);
+            $("<td>", { text: "昵称" }).appendTo(ttr);
+            ttr.appendTo(table);
+            mothershipData.map((data, index) => {
+                const ltr = $("<tr>", { style: "line-height:30px;" });
+                let td = $("<td>").appendTo(ltr);
+                $("<input>", { id: "dataCheck-" + index, type: "checkbox", style: "width: 20px; height:20px", text: " ", checked: true }).appendTo(td);
+                td = $("<td>", { text: data.uid }).appendTo(ltr);
+                td = $("<td>", { text: data.dataType }).appendTo(ltr);
+                td = $("<td>").appendTo(ltr);
+                let uname = $("<input>", { id: "dataName-" + index, type: "text", defaultText: data.uid });
+                uname.val(data.name);
+                uname.blur(function () {
+                    if (uname.val() === "") uname.val(uname.attr("defaultText"));
+                    let index = parseInt(uname.attr("id").split("-")[1]);
+                    mothershipData[index].setName(uname.val());
+                });
+                uname.appendTo(td);
+                ltr.appendTo(table);
+            });
+        }
+
+        function getJSONData(userId, startDate, endDate, mode) {
+            const data = {};
+            data.start = getDateString(startDate, true);
+            data.limit = Math.ceil((endDate - startDate) / (1000 * 3600 * 24));
+            data.mode = mode;
+            const url = `https://www.mothership.top/api/v1/userinfo/${userId}`;
+            $.ajax({
+                url: url,
+                data: data,
+                dataType: "json",
+                success: function (resp) {
+                    if (resp.code === 3) {
+                        // 起始时间过早
+                        const newStartDate = new Date(resp.data.year + "-" + resp.data.month + "-" + resp.data.day);
+                        $('#startDate').val(getDateString(newStartDate));
+                        $('#getDataConsole').text("起始日期太早，已自动修正，请重新获取数据");
+                        $('#getDataBtn').removeAttr('disabled');
+                        $('#saved-name').val($('#name').val());
+                        $('#saved-uid').val($('#uid').val());
+                        $('#saved-start').val($('#startDate').val());
+                    }
+                    else if (resp.code !== 0) $('#getDataConsole').text(resp.status);
+                    else {
+                        const user = new UserFull(resp.data, startDate, endDate);
+                        const username = getPlaterName(userId);
+                        const drawInfo = new DrawInfo(userId, user, $("#mode option[value=" + mode + "]").text() + ": " + getDateString(startDate) + "~" + getDateString(endDate), username);
+                        mothershipData.push(drawInfo);
+                        updateTable();
+                        $('#xcor').attr("disabled", false);
+                        $('#ycor').attr("disabled", false);
+                        $('#drawBtn').attr("disabled", false);
+                        $('#getDataConsole').text("获取数据成功，您也可以继续添加");
+                    }
+                },
+                error: function (xhr) {
+                    $('#getDataConsole').text("从妈船获取数据失败（妈船api经常爆炸，过段时间再试试吧） " + xhr.status + " " + xhr.statusText);
+                }
+            });
+        }
+
+        $('#getDataBtn').click(function () {
+            $(this).attr("disabled", true);
+            $('#getDataConsole').text("正在获取数据，请稍等...");
+            const userId = $("#uid").val();
+            const mode = parseInt($("#mode").val());
+            const startDate = new Date($("#startDate").val());
+            const endDate = new Date($("#endDate").val());
+            getJSONData(userId, startDate, endDate, mode);
+            setTimeout(function () {
+                $('#getDataBtn').removeAttr('disabled')
+            }, 5000);
+        });
+
+        $("#drawBtn").click(function () {
+            if (mothershipData.length <= 0) $("#graph").text("请先获取数据");
+            else {
+                const xName = $("#xcor").val();
+                const xTitle = $("#xcor option[value=" + xName + "]").text()
+                const yName = $("#ycor").val();
+                const yTitle = $("#ycor option[value=" + yName + "]").text()
+                let datas = [];
+                $("#playerlist tr:gt(0)").each(function (index, tr) {
+                    let checkbox = $("input:checkbox", tr);
+                    if (checkbox.is(':checked')) {
+                        let index = parseInt(checkbox.attr("id").split("-")[1]);
+                        datas.push(mothershipData[index].getTrace(xName, yName));
+                    }
+                });
+                const layout = {
+                    title: {
+                        text: xTitle + "-" + yTitle
+                    },
+                    xaxis: {
+                        title: {
+                            text: xTitle
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: yTitle
+                        }
+                    }
+                };
+                Plotly.newPlot('graph', datas, layout, { scrollZoom: true });
+            }
+        });
+
+    </script>
+
+    <script type="text/javascript">
+        var dragresize = new DragResize('dragresize',
+            { minWidth: 50, minHeight: 50, minLeft: 20, minTop: 20, maxLeft: 10000, maxTop: 10000 });
+        dragresize.isElement = function (elm) {
+            if (elm.className && elm.className.indexOf('drsElement') > -1) return true;
+        };
+        dragresize.isHandle = function (elm) {
+            if (elm.className && elm.className.indexOf('drsMoveHandle') > -1) return true;
+        };
+        dragresize.apply(document);
+    </script>
+
+</body>
+
+</html>
