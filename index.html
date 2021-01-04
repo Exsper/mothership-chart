@@ -9,80 +9,7 @@
     <link rel="shortcut icon" href="./favicon.ico" />
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script type="text/javascript" src="./src/js/dragresize.js"></script>
-    <style type="text/css">
-        .drsElement {
-            position: absolute;
-            border: 1px solid #333;
-        }
-
-        .drsMoveHandle {
-            height: 20px;
-            background-color: #FFF;
-            border-bottom: 1px solid #666;
-            cursor: move;
-        }
-
-        .dragresize {
-            position: absolute;
-            width: 5px;
-            height: 5px;
-            font-size: 1px;
-            background: #EEE;
-            border: 1px solid #333;
-        }
-
-        .dragresize-tl {
-            top: -8px;
-            left: -8px;
-            cursor: nw-resize;
-        }
-
-        .dragresize-tm {
-            top: -8px;
-            left: 50%;
-            margin-left: -4px;
-            cursor: n-resize;
-        }
-
-        .dragresize-tr {
-            top: -8px;
-            right: -8px;
-            cursor: ne-resize;
-        }
-
-        .dragresize-ml {
-            top: 50%;
-            margin-top: -4px;
-            left: -8px;
-            cursor: w-resize;
-        }
-
-        .dragresize-mr {
-            top: 50%;
-            margin-top: -4px;
-            right: -8px;
-            cursor: e-resize;
-        }
-
-        .dragresize-bl {
-            bottom: -8px;
-            left: -8px;
-            cursor: sw-resize;
-        }
-
-        .dragresize-bm {
-            bottom: -8px;
-            left: 50%;
-            margin-left: -4px;
-            cursor: s-resize;
-        }
-
-        .dragresize-br {
-            bottom: -8px;
-            right: -8px;
-            cursor: se-resize;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="./src/css/dragresize.css" />
 </head>
 
 <body>
@@ -120,7 +47,7 @@
         </table>
         <br>
         <br>
-        <span>x轴: </span><select id='xcor' disabled='disabled'>
+        <span>x轴: </span><select id='xcor'>
             <option value="dateString">日期</option>
             <option value="playcount">pc</option>
             <option value="tth">tth</option>
@@ -128,7 +55,7 @@
             <option value="totalscore">total 总分</option>
             <option value="level">等级</option>
         </select>
-        <span>y轴：</span><select id='ycor' disabled='disabled'>
+        <span>y轴：</span><select id='ycor'>
             <option value="pp">pp</option>
             <option value="rankworld">rank</option>
             <option value="accuracy">acc</option>
@@ -143,6 +70,9 @@
             <option value="count50">50总数</option>
             <option value="count100">100总数</option>
             <option value="count300">300总数</option>
+            <option value="tth_pc">tth/pc</option>
+            <option value="tth_pp">tth/pp</option>
+            <option value="pc_pp">pc/pp</option>
         </select>
         <button id='drawBtn' disabled='disabled'>绘制折线图</button>
     </div>
@@ -221,12 +151,6 @@
                 this.count100 = parseInt(lineData.count100);
                 this.count300 = parseInt(lineData.count300);
                 this.tth = this.count50 + this.count100 + this.count300;
-                // this.countRankS = parseInt(lineData.countRankS);
-                // this.countRankSh = parseInt(lineData.countRankSh);
-                // this.countRankSs = parseInt(lineData.countRankSs);
-                // this.countRankSsh = parseInt(lineData.countRankSsh);
-                // this.S = this.countRankSh + this.countRankS;
-                // this.SS = this.countRankSsh + this.countRankSs;
                 this.A = parseInt(lineData.countRankA);
                 this.S = parseInt(lineData.countRankS + lineData.countRankSh);
                 this.SS = parseInt(lineData.countRankSs + lineData.countRankSsh);
@@ -238,6 +162,10 @@
                 this.totalscore = parseInt(lineData.totalScore);
                 this.dateString = lineData.queryDate.year + "-" + lineData.queryDate.month + "-" + lineData.queryDate.day;
                 this.date = new Date(this.dateString);
+
+                this.tth_pc = this.tth / this.playcount;
+                this.tth_pp = this.tth / this.pp;
+                this.pc_pp = this.playcount / this.pp;
             }
         }
 
@@ -344,9 +272,6 @@
                         const drawInfo = new DrawInfo(userId, user, $("#mode option[value=" + mode + "]").text() + ": " + getDateString(startDate) + "~" + getDateString(endDate), username);
                         mothershipData.push(drawInfo);
                         updateTable();
-                        $('#xcor').attr("disabled", false);
-                        $('#ycor').attr("disabled", false);
-                        $('#drawBtn').attr("disabled", false);
                         $('#getDataConsole').text("获取数据成功，您也可以继续添加");
                     }
                 },
@@ -389,10 +314,12 @@
             let element = document.createElement("script");
             element.src = "https://cdn.plot.ly/plotly-latest.min.js";
             element.onload = function () {
+                $('#drawBtn').attr("disabled", false);
                 $("#drawBtn").text("绘制折线图");
                 $("#drawBtn").click(function () {
-                    if (mothershipData.length <= 0) $("#graph").text("请先获取数据");
+                    if (mothershipData.length <= 0) $("#graph").append($('<div class="draw-warning"><span>请先获取数据</span></div>'));
                     else {
+                        $(".draw-warning").remove();
                         const xName = $("#xcor").val();
                         const xTitle = $("#xcor option[value=" + xName + "]").text()
                         const yName = $("#ycor").val();
