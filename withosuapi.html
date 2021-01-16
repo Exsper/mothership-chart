@@ -137,7 +137,7 @@
             });
         }
 
-        function getMothershipData($dataStat, userId, startDate, endDate, mode) {
+        function getMothershipData($dataStat, userId, startDate, endDate, mode, modeText) {
             const data = {};
             data.start = getDateString(startDate, true);
             data.limit = Math.ceil((endDate - startDate) / (1000 * 3600 * 24));
@@ -162,10 +162,9 @@
                     else {
                         const user = new UserFull(resp.data, startDate, endDate);
                         const username = getPlaterName(userId);
-                        const drawInfo = new DrawInfo(userId, user, $("#mode option[value=" + mode + "]").text() + ": " + getDateString(startDate) + "~" + getDateString(endDate), username);
+                        const drawInfo = new DrawInfo(userId, user, modeText + ": " + getDateString(startDate) + "~" + getDateString(endDate), username);
                         mothershipData.push(drawInfo);
                         updateTable();
-                        $('#getDataConsole').text("获取数据成功，您也可以继续添加");
                     }
                 },
                 error: function (xhr) {
@@ -207,13 +206,14 @@
                 const $this = $(this);
                 $this.attr("disabled", true);
                 const index = $this.attr("id").split("-")[1];
-                const $dataStat = $("dataStat-" + index);
+                const $dataStat = $("#dataStat-" + index);
                 $dataStat.text("正在获取数据，请稍等...");
-                const userId = $("uid-" + index).val();
-                const mode = parseInt($("mode-" + index).val());
-                const startDate = new Date($("startDate-" + index).val());
-                const endDate = new Date($("endDate-" + index).val());
-                getMothershipData($dataStat, userId, startDate, endDate, mode);
+                const userId = $("#uid-" + index).val();
+                const mode = parseInt($("#mode-" + index).val());
+                const startDate = new Date($("#startDate-" + index).val());
+                const endDate = new Date($("#endDate-" + index).val());
+                const modeText = $("#mode-" + index + " option[value=" + mode + "]").text()
+                getMothershipData($dataStat, userId, startDate, endDate, mode, modeText);
                 setTimeout(() => {
                     $(this).removeAttr('disabled');
                 }, 5000);
