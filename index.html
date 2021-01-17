@@ -20,10 +20,17 @@
     <br>
     <br>
     <div id='settings'>
+        <span>osu apiKey: </span><input id='osuapikey' type="password" style="width: 400px;"
+            placeholder="（可选）在此输入您的osu apikey，可以通过玩家名获取玩家ID" />
+        <button id='checkApiBtn'>验证</button>
+        <span id='checkApiResult'></span>
+        <br>
+        <br>
         <span>预置：</span><select id='savedPlayer'></select>
         <span>昵称: </span><input id='saved-name' value='Exsper' />
         <span>uid: </span><input id='saved-uid' value='2360046' />
         <span>起始日期: </span><input id='saved-start' value='2018-02-16' />
+        <button id='getPlayerInfoBtn' disabled>通过osu api获取玩家信息</button>
         <button id='savePlayer'>保存</button>
         <button id='delPlayer'>删除</button>
         <br>
@@ -85,6 +92,91 @@
 
     <script type="text/javascript">
         var savedPlayers = JSON.parse(window.localStorage.getItem("savedPlayers")) || {};
+
+        function getUserInfoByApi(name, apikey, callback) {
+            const url = "https://osu.ppy.sh/api/get_user";
+            const data = {};
+            data.k = apikey;
+            data.u = name;
+            $.ajax({
+                url: url,
+                data: data,
+                dataType: "json",
+                success: function (resp) {
+                    if (resp.error) $("#saved-uid").val(resp.error);
+                    if (resp.length <= 0) $("#saved-uid").val("找不到该玩家的信息");
+                    const player = resp[0];
+                    callback({ username: player.username, user_id: player.user_id, join_date: player.join_date });
+                },
+                error: function (xhr) {
+                    $("#saved-uid").val("从ppy获取信息失败 " + xhr.statusText);
+                }
+            });
+        }
+
+        function saveOsuApi(api) {
+            window.localStorage.setItem("osuapi", api);
+        }
+
+        function loadOsuApi() {
+            let api = window.localStorage.getItem("osuapi") || "";
+            if (api) {
+                $("#osuapikey").val(api);
+                unlockOsuApi();
+            }
+        }
+
+        function unlockOsuApi() {
+            $("#getPlayerInfoBtn").removeAttr("disabled");
+        }
+
+        function checkOsuApi() {
+            const apikey = $("#osuapikey").val();
+            const url = "https://osu.ppy.sh/api/get_user";
+            const data = {};
+            data.k = apikey;
+            data.u = "peppy";
+            $.ajax({
+                url: url,
+                data: data,
+                dataType: "json",
+                success: function (resp) {
+                    if (resp.error) $("#checkApiResult").text(resp.error);
+                    else if (resp.length <= 0) $("#checkApiResult").text("Apikey无效，可能是网络问题，请重试");
+                    else {
+                        const player = resp[0];
+                        if (player.user_id === "2") {
+                            $("#checkApiResult").text("Apikey可用");
+                            saveOsuApi(apikey);
+                            unlockOsuApi();
+                        }
+                        else $("#checkApiResult").text("Apikey无效，可能是网络问题，请重试");
+                    }
+                },
+                error: function (xhr) {
+                    $("#checkApiResult").text("从ppy获取信息失败 " + xhr.statusText);
+                }
+            });
+        }
+
+        function setPlayerInfoByApi() {
+            const apikey = $("#osuapikey").val();
+            const name = $('#saved-name').val();
+            getUserInfoByApi(name, apikey, ({username, user_id, join_date}) => {
+                $('#saved-name').val(username);
+                $("#saved-uid").val(user_id);
+                $("#saved-start").val(getDateString(new Date(join_date)));
+            });
+        }
+
+        $("#checkApiBtn").click(() => {
+            checkOsuApi();
+        });
+        $("#getPlayerInfoBtn").click(() => {
+            setPlayerInfoByApi();
+        });
+        loadOsuApi();
+
 
         function getPlaterName(uid) {
             return savedPlayers[uid].name || null;
@@ -208,7 +300,7 @@
                     }
                 },
                 error: function (xhr) {
-                    $('#getDataConsole').text("从妈船获取数据失败（妈船api经常爆炸，过段时间再试试吧） " + xhr.status + " " + xhr.statusText);
+                    $('#getDataConsole').text("从妈船获取数据失败（妈船api经常爆炸，过段时间再试试吧） " + xhr.statusText);
                 }
             });
         }
