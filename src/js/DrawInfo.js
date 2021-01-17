@@ -68,5 +68,41 @@ class DrawInfo {
         const points = this.userfull.getPoints(xName, yName);
         return { "x": points.x, "y": points.y, name: this.name, showlegend: true, "type": "scatter" };
     }
+
+    getLayout(xTitle, yTitle) {
+        let layout = {
+            title: {
+                text: xTitle + "-" + yTitle
+            },
+            xaxis: {
+                title: {
+                    text: xTitle
+                },
+                exponentformat: 'none',
+                showgrid: true,
+                gridwidth: 2
+            },
+            yaxis: {
+                title: {
+                    text: yTitle
+                },
+                exponentformat: 'none',
+                showgrid: true,
+                gridwidth: 2
+            }
+        };
+        switch (xTitle) {
+            case "rank": { layout.xaxis.autorange = 'reversed'; break; }
+            case "ranked 总分":
+            case "total 总分": { delete layout.xaxis.exponentformat; break; }
+        };
+        switch (yTitle) {
+            case "rank": { layout.yaxis.autorange = 'reversed'; break; }
+            case "ranked 总分":
+            case "total 总分": { delete layout.yaxis.exponentformat; break; }
+        };
+
+        return layout;
+    }
 }
 
