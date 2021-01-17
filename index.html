@@ -16,7 +16,9 @@
 
 <body>
     <span>这是一个使用妈船api获取数据来作图的工具，与妈船和白菜bot没有任何关系。</span>
-    <span>如果可以的话，请多多支持</span><a href="https://github.com/Mother-Ship" target="_blank" style="font-weight: bold;">妈船</a>和<a href="https://github.com/Mother-Ship/cabbageWeb" target="_blank" style="font-weight: bold;">白菜</a><span>，万分感谢！</span>
+    <span>如果可以的话，请多多支持</span><a href="https://github.com/Mother-Ship" target="_blank"
+        style="font-weight: bold;">妈船</a>和<a href="https://github.com/Mother-Ship/cabbageWeb" target="_blank"
+        style="font-weight: bold;">白菜</a><span>，万分感谢！</span>
     <br>
     <div id='settings'>
         <fieldset style="width: 800px;">
@@ -32,8 +34,10 @@
         <fieldset style="width: 1200px;">
             <legend>预置</legend>
             <span>昵称: </span><input id='saved-name' style="width: 240px;" value='' placeholder="如：Exsper" />
-            <span>uid: </span><input id='saved-uid' style="width: 240px;" value='' placeholder="如：2360046，使用osu api可以留空" />
-            <span>起始日期: </span><input id='saved-start' style="width: 240px;" value='' placeholder="如：2012-01-01，使用osu api可以留空" />
+            <span>uid: </span><input id='saved-uid' style="width: 240px;" value=''
+                placeholder="如：2360046，使用osu api可以留空" />
+            <span>起始日期: </span><input id='saved-start' style="width: 240px;" value=''
+                placeholder="如：2012-01-01，使用osu api可以留空" />
             <button id='getPlayerInfoBtn' disabled>通过osu api获取玩家信息</button>
             <button id='savePlayer'>保存到预置</button>
         </fieldset>
@@ -98,7 +102,7 @@
     <br>
     <br>
     <div id='graph' class="drsElement drsMoveHandle"
-        style='width: 1000px; height: 600px; border: 1px solid; bottom: 0px; right: 0px;'></div>
+        style='width: 1000px; height: 600px; border: 1px solid; top: 0px; left: 0px;'></div>
 
     <script type="text/javascript">
         var savedPlayers = JSON.parse(window.localStorage.getItem("savedPlayers")) || {};
@@ -153,25 +157,25 @@
                 success: function (resp) {
                     if (resp.error) $("#checkApiResult").text(resp.error);
                     else if (resp.length <= 0) {
-                        $("#checkApiResult").css("color","red");
+                        $("#checkApiResult").css("color", "red");
                         $("#checkApiResult").text("Apikey无效，可能是网络问题，请重试");
                     }
                     else {
                         const player = resp[0];
                         if (player.user_id === "2") {
-                            $("#checkApiResult").css("color","lime");
+                            $("#checkApiResult").css("color", "lime");
                             $("#checkApiResult").text("Apikey可用");
                             saveOsuApi(apikey);
                             unlockOsuApi();
                         }
                         else {
-                            $("#checkApiResult").css("color","red");
+                            $("#checkApiResult").css("color", "red");
                             $("#checkApiResult").text("Apikey无效，可能是网络问题，请重试");
                         }
                     }
                 },
                 error: function (xhr) {
-                    $("#checkApiResult").css("color","red");
+                    $("#checkApiResult").css("color", "red");
                     $("#checkApiResult").text("Apikey无效，或无法连接ppy");
                 }
             });
@@ -345,8 +349,10 @@
     </script>
 
     <script type="text/javascript">
+        $("#graph").css("top", window.innerHeight - $("#graph").height());
+        $("#graph").css("left", window.innerWidth - $("#graph").width());
         let dragresize = new DragResize('dragresize',
-            { minWidth: 50, minHeight: 50, minLeft: 20, minTop: 20, maxLeft: 10000, maxTop: 10000 });
+            { minWidth: 200, minHeight: 200, minLeft: 0, minTop: 0, maxLeft: window.innerWidth, maxTop: window.innerHeight });
         dragresize.isElement = function (elm) {
             if (typeof elm.className === "string" && elm.className.indexOf('drsElement') > -1) return true;
         };
@@ -354,6 +360,10 @@
             if (typeof elm.className === "string" && elm.className.indexOf('drsMoveHandle') > -1) return true;
         };
         dragresize.apply(document);
+        $(window).resize(() => {
+            dragresize.maxLeft = window.innerWidth;
+            dragresize.maxTop = window.innerHeight;
+        });
     </script>
 
     <script type="text/javascript">

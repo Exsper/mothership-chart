@@ -1,5 +1,6 @@
 body {
     background-color: #fad7ff;
+    overflow: hidden;
 }
 
 fieldset { 
