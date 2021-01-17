@@ -27,12 +27,13 @@
             </form>
             <button id='checkApiBtn'>验证</button>
             <span id='checkApiResult'></span>
+            <a href="https://old.ppy.sh/p/api/" style="float: right;">获取osu api</a>
         </fieldset>
         <fieldset style="width: 1200px;">
             <legend>预置</legend>
-            <span>昵称: </span><input id='saved-name' value='' placeholder="如：Exsper" />
-            <span>uid: </span><input id='saved-uid' value='' placeholder="如：2360046" />
-            <span>起始日期: </span><input id='saved-start' value='' placeholder="如：2012-01-01" />
+            <span>昵称: </span><input id='saved-name' style="width: 240px;" value='' placeholder="如：Exsper" />
+            <span>uid: </span><input id='saved-uid' style="width: 240px;" value='' placeholder="如：2360046，使用osu api可以留空" />
+            <span>起始日期: </span><input id='saved-start' style="width: 240px;" value='' placeholder="如：2012-01-01，使用osu api可以留空" />
             <button id='getPlayerInfoBtn' disabled>通过osu api获取玩家信息</button>
             <button id='savePlayer'>保存到预置</button>
         </fieldset>
