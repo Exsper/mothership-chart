@@ -21,7 +21,7 @@
         style="font-weight: bold;">白菜</a><span>，万分感谢！</span>
     <br>
     <div id='settings'>
-        <fieldset style="width: 800px;">
+        <fieldset style="width: 1000px;">
             <legend>osu apikey</legend>
             <form style="display: inline;">
                 <span>osu apiKey: </span><input id='osuapikey' type="password" style="width: 400px;"
@@ -32,7 +32,7 @@
             <a href="https://old.ppy.sh/p/api/" style="float: right;">获取osu api</a>
         </fieldset>
         <fieldset style="width: 1200px;">
-            <legend>预置</legend>
+            <legend>预置玩家</legend>
             <span>昵称: </span><input id='saved-name' style="width: 240px;" value='' placeholder="如：Exsper" />
             <span>uid: </span><input id='saved-uid' style="width: 240px;" value=''
                 placeholder="如：2360046，使用osu api可以留空" />
@@ -42,7 +42,7 @@
             <button id='savePlayer'>保存到预置</button>
         </fieldset>
         <fieldset style="width: 1200px;">
-            <legend>获取指定玩家信息</legend>
+            <legend>获取数据</legend>
             <span>选择预置玩家：</span><select id='savedPlayer'></select> <button id='delPlayer'>从预置中删除</button>
             <br>
             <br>
@@ -59,14 +59,14 @@
             <button id='getDataBtn'>获取数据</button>
         </fieldset>
         <fieldset style="width: 800px;">
-            <legend>绘图数据列表</legend>
+            <legend>数据列表</legend>
             <span>当前状态：</span><span id='getDataConsole'>请先获取数据</span>
             <br>
             <br>
             <table id='playerlist' style="text-align: center;">
             </table>
         </fieldset>
-        <fieldset style="width: 600px;">
+        <fieldset style="width: 400px;">
             <legend>绘图选项</legend>
             <span>x轴: </span><select id='xcor'>
                 <option value="dateString">日期</option>
