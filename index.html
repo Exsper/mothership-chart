@@ -11,6 +11,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script type="text/javascript" src="./src/js/dragresize.js"></script>
     <link rel="stylesheet" type="text/css" href="./src/css/dragresize.css" />
+    <link rel="stylesheet" type="text/css" href="./src/css/index.css" />
 </head>
 
 <body>
@@ -18,72 +19,81 @@
         这是一个使用妈船api获取数据来作图的工具，与妈船和白菜bot没有任何关系
     </span>
     <br>
-    <br>
     <div id='settings'>
-        <span>osu apiKey: </span><input id='osuapikey' type="password" style="width: 400px;"
-            placeholder="（可选）在此输入您的osu apikey，可以通过玩家名获取玩家ID" />
-        <button id='checkApiBtn'>验证</button>
-        <span id='checkApiResult'></span>
-        <br>
-        <br>
-        <span>预置：</span><select id='savedPlayer'></select>
-        <span>昵称: </span><input id='saved-name' value='Exsper' />
-        <span>uid: </span><input id='saved-uid' value='2360046' />
-        <span>起始日期: </span><input id='saved-start' value='2018-02-16' />
-        <button id='getPlayerInfoBtn' disabled>通过osu api获取玩家信息</button>
-        <button id='savePlayer'>保存</button>
-        <button id='delPlayer'>删除</button>
-        <br>
-        <br>
-        <span>昵称: </span><input id='name' value='abcdef' />
-        <span>uid: </span><input id='uid' value='123456' />
-        <span>模式: </span><select id='mode'>
-            <option value="0">Standard</option>
-            <option value="1">Taiko</option>
-            <option value="2">Catch The Beat</option>
-            <option value="3">Mania</option>
-        </select>
-        <span>起始日期：</span><input type="text" id='startDate' value='2012-01-01' />
-        <span>截止日期：</span><input type="text" id='endDate' value='2012-01-01' />
-        <button id='getDataBtn'>获取数据</button>
-        <br>
-        <br>
-        <span>当前状态：</span><span id='getDataConsole'>请先获取数据</span>
-        <br>
-        <br>
-        <table id='playerlist' style="text-align: center;">
-        </table>
-        <br>
-        <br>
-        <span>x轴: </span><select id='xcor'>
-            <option value="dateString">日期</option>
-            <option value="pp">pp</option>
-            <option value="playcount">pc</option>
-            <option value="tth">tth</option>
-            <option value="rankedscore">ranked 总分</option>
-            <option value="totalscore">total 总分</option>
-            <option value="level">等级</option>
-        </select>
-        <span>y轴：</span><select id='ycor'>
-            <option value="pp">pp</option>
-            <option value="rankworld">rank</option>
-            <option value="accuracy">acc</option>
-            <option value="playcount">pc</option>
-            <option value="tth">tth</option>
-            <option value="rankedscore">ranked 总分</option>
-            <option value="totalscore">total 总分</option>
-            <option value="level">等级</option>
-            <option value="SS">SS总数</option>
-            <option value="S">S总数</option>
-            <option value="A">A总数</option>
-            <option value="count50">50总数</option>
-            <option value="count100">100总数</option>
-            <option value="count300">300总数</option>
-            <option value="tth_pc">tth/pc</option>
-            <option value="tth_pp">tth/pp</option>
-            <option value="pc_pp">pc/pp</option>
-        </select>
-        <button id='drawBtn' disabled='disabled'>绘制折线图</button>
+        <fieldset style="width: 800px;">
+            <legend>osu apikey</legend>
+            <form style="display: inline;">
+                <span>osu apiKey: </span><input id='osuapikey' type="password" style="width: 400px;"
+                    placeholder="（可选）在此输入您的osu apikey，可以通过玩家名获取玩家ID" />
+            </form>
+            <button id='checkApiBtn'>验证</button>
+            <span id='checkApiResult'></span>
+        </fieldset>
+        <fieldset style="width: 1200px;">
+            <legend>预置</legend>
+            <span>昵称: </span><input id='saved-name' value='' placeholder="如：Exsper" />
+            <span>uid: </span><input id='saved-uid' value='' placeholder="如：2360046" />
+            <span>起始日期: </span><input id='saved-start' value='' placeholder="如：2012-01-01" />
+            <button id='getPlayerInfoBtn' disabled>通过osu api获取玩家信息</button>
+            <button id='savePlayer'>保存到预置</button>
+        </fieldset>
+        <fieldset style="width: 1200px;">
+            <legend>获取指定玩家信息</legend>
+            <span>选择预置玩家：</span><select id='savedPlayer'></select> <button id='delPlayer'>从预置中删除</button>
+            <br>
+            <br>
+            <span>昵称: </span><input id='name' value='' placeholder="如：Exsper" />
+            <span>uid: </span><input id='uid' value='' placeholder="如：2360046" />
+            <span>模式: </span><select id='mode'>
+                <option value="0">Standard</option>
+                <option value="1">Taiko</option>
+                <option value="2">Catch The Beat</option>
+                <option value="3">Mania</option>
+            </select>
+            <span>起始日期：</span><input type="text" id='startDate' value='' placeholder="如：2012-01-01" />
+            <span>截止日期：</span><input type="text" id='endDate' value='' placeholder="如：2021-01-01" />
+            <button id='getDataBtn'>获取数据</button>
+        </fieldset>
+        <fieldset style="width: 800px;">
+            <legend>绘图数据列表</legend>
+            <span>当前状态：</span><span id='getDataConsole'>请先获取数据</span>
+            <br>
+            <br>
+            <table id='playerlist' style="text-align: center;">
+            </table>
+        </fieldset>
+        <fieldset style="width: 600px;">
+            <legend>绘图选项</legend>
+            <span>x轴: </span><select id='xcor'>
+                <option value="dateString">日期</option>
+                <option value="pp">pp</option>
+                <option value="playcount">pc</option>
+                <option value="tth">tth</option>
+                <option value="rankedscore">ranked 总分</option>
+                <option value="totalscore">total 总分</option>
+                <option value="level">等级</option>
+            </select>
+            <span>y轴：</span><select id='ycor'>
+                <option value="pp">pp</option>
+                <option value="rankworld">rank</option>
+                <option value="accuracy">acc</option>
+                <option value="playcount">pc</option>
+                <option value="tth">tth</option>
+                <option value="rankedscore">ranked 总分</option>
+                <option value="totalscore">total 总分</option>
+                <option value="level">等级</option>
+                <option value="SS">SS总数</option>
+                <option value="S">S总数</option>
+                <option value="A">A总数</option>
+                <option value="count50">50总数</option>
+                <option value="count100">100总数</option>
+                <option value="count300">300总数</option>
+                <option value="tth_pc">tth/pc</option>
+                <option value="tth_pp">tth/pp</option>
+                <option value="pc_pp">pc/pp</option>
+            </select>
+            <button id='drawBtn' disabled='disabled'>绘制折线图</button>
+        </fieldset>
     </div>
     <br>
     <br>
@@ -142,19 +152,27 @@
                 dataType: "json",
                 success: function (resp) {
                     if (resp.error) $("#checkApiResult").text(resp.error);
-                    else if (resp.length <= 0) $("#checkApiResult").text("Apikey无效，可能是网络问题，请重试");
+                    else if (resp.length <= 0) {
+                        $("#checkApiResult").css("color","red");
+                        $("#checkApiResult").text("Apikey无效，可能是网络问题，请重试");
+                    }
                     else {
                         const player = resp[0];
                         if (player.user_id === "2") {
+                            $("#checkApiResult").css("color","lime");
                             $("#checkApiResult").text("Apikey可用");
                             saveOsuApi(apikey);
                             unlockOsuApi();
                         }
-                        else $("#checkApiResult").text("Apikey无效，可能是网络问题，请重试");
+                        else {
+                            $("#checkApiResult").css("color","red");
+                            $("#checkApiResult").text("Apikey无效，可能是网络问题，请重试");
+                        }
                     }
                 },
                 error: function (xhr) {
-                    $("#checkApiResult").text("从ppy获取信息失败 " + xhr.statusText);
+                    $("#checkApiResult").css("color","red");
+                    $("#checkApiResult").text("Apikey无效，或无法连接ppy");
                 }
             });
         }
@@ -162,7 +180,7 @@
         function setPlayerInfoByApi() {
             const apikey = $("#osuapikey").val();
             const name = $('#saved-name').val();
-            getUserInfoByApi(name, apikey, ({username, user_id, join_date}) => {
+            getUserInfoByApi(name, apikey, ({ username, user_id, join_date }) => {
                 $('#saved-name').val(username);
                 $("#saved-uid").val(user_id);
                 $("#saved-start").val(getDateString(new Date(join_date)));
@@ -170,10 +188,10 @@
         }
 
         $("#checkApiBtn").click(() => {
-            checkOsuApi();
+            if ($("#osuapikey").val()) checkOsuApi();
         });
         $("#getPlayerInfoBtn").click(() => {
-            setPlayerInfoByApi();
+            if ($("#osuapikey").val() && $("#saved-name").val()) setPlayerInfoByApi();
         });
         loadOsuApi();
 
@@ -209,14 +227,15 @@
             player.name = $('#saved-name').val();
             player.uid = $('#saved-uid').val();
             player.startDate = $('#saved-start').val();
-            savedPlayers[player.uid] = player;
-            updateSavedPlayers();
-            saveSavedPlayers();
-            $('#savedPlayer').val(player.uid);
+            if (player.name && player.uid && player.startDate) {
+                savedPlayers[player.uid] = player;
+                updateSavedPlayers();
+                saveSavedPlayers();
+            }
         })
 
         $('#delPlayer').click(function () {
-            delete savedPlayers[$('#saved-uid').val()];
+            delete savedPlayers[$('#savedPlayer option:selected').val()];
             updateSavedPlayers();
             saveSavedPlayers();
         })
@@ -310,9 +329,14 @@
             $('#getDataConsole').text("正在获取数据，请稍等...");
             const userId = $("#uid").val();
             const mode = parseInt($("#mode").val());
-            const startDate = new Date($("#startDate").val());
-            const endDate = new Date($("#endDate").val());
-            getJSONData(userId, startDate, endDate, mode);
+            const startDate = $("#startDate").val();
+            const endDate = $("#endDate").val();
+            if (!(userId && startDate && endDate)) {
+                $('#getDataConsole').text("请将信息填写完整");
+                $('#getDataBtn').removeAttr('disabled');
+                return;
+            }
+            getJSONData(userId, new Date(startDate), new Date(endDate), mode);
             setTimeout(function () {
                 $('#getDataBtn').removeAttr('disabled')
             }, 5000);
