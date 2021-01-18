@@ -66,7 +66,7 @@
             <table id='playerlist' style="text-align: center;">
             </table>
         </fieldset>
-        <fieldset style="width: 400px;">
+        <fieldset style="width: 600px;">
             <legend>绘图选项</legend>
             <span>x轴: </span><select id='xcor'>
                 <option value="dateString">日期</option>
@@ -95,6 +95,11 @@
                 <option value="tth_pc">tth/pc</option>
                 <option value="tth_pp">tth/pp</option>
                 <option value="pc_pp">pc/pp</option>
+            </select>
+            <span>y轴数据：</span><select id='ycorDataType'>
+                <option value="val">原始数据</option>
+                <option value="deltaVal">增长值</option>
+                <option value="deltaPer">增长百分比</option>
             </select>
             <button id='drawBtn' disabled='disabled'>绘制折线图</button>
         </fieldset>
@@ -267,7 +272,15 @@
             const table = $("#playerlist");
             table.empty();
             const ttr = $("<tr>", { style: "background-color:#9898f3; line-height:30px;" });
-            $("<td>", { text: "选择" }).appendTo(ttr);
+            let td = $("<td>", { text: "选择" }).appendTo(ttr);
+            let selectAll = $("<input>", { id: "selectAll", type: "checkbox", style: "width: 20px; height:20px", text: " ", checked: true }).prependTo(td);
+            selectAll.click(function (){
+                if ($(this).prop("checked")) {
+                    $("input:checkbox:gt(0)", $("#playerlist")).prop("checked", true);
+                } else {
+                    $("input:checkbox:gt(0)", $("#playerlist")).prop("checked", false);
+                }
+            });
             $("<td>", { text: "uid" }).appendTo(ttr);
             $("<td>", { text: "数据" }).appendTo(ttr);
             $("<td>", { text: "昵称" }).appendTo(ttr);
@@ -382,15 +395,16 @@
                         const xTitle = $("#xcor option[value=" + xName + "]").text()
                         const yName = $("#ycor").val();
                         const yTitle = $("#ycor option[value=" + yName + "]").text()
+                        const yDataType = $("#ycorDataType").val();
                         let datas = [];
                         $("#playerlist tr:gt(0)").each(function (index, tr) {
                             let checkbox = $("input:checkbox", tr);
                             if (checkbox.is(':checked')) {
                                 let index = parseInt(checkbox.attr("id").split("-")[1]);
-                                datas.push(mothershipData[index].getTrace(xName, yName));
+                                datas.push(mothershipData[index].getTrace(xName, yName, yDataType));
                             }
                         });
-                        const layout = mothershipData[0].getLayout(xTitle, yTitle);
+                        const layout = mothershipData[0].getLayout(xTitle, yTitle, yDataType);
                         Plotly.newPlot('graph', datas, layout, { scrollZoom: true, responsive: true });
                     }
                 });

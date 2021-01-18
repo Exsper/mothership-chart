@@ -35,13 +35,34 @@ class UserFull {
         }).sort((a, b) => a.date - b.date);
     }
 
-    getPoints(xName, yName) {
+    getPoints(xName, yName, yDataType) {
         let x = [];
         let y = [];
-        this.lines.map((line) => {
-            x.push(line[xName]);
-            y.push(line[yName]);
-        });
+        switch (yDataType) {
+            case "val": {
+                this.lines.map((line) => {
+                    x.push(line[xName]);
+                    y.push(line[yName]);
+                });
+                break;
+            }
+            case "deltaVal": {
+                this.lines.map((line, index) => {
+                    if (index < 1) return;
+                    x.push(line[xName]);
+                    y.push(line[yName] - this.lines[index - 1][yName]);
+                });
+                break;
+            }
+            case "deltaPer": {
+                this.lines.map((line, index) => {
+                    if (index < 1) return;
+                    x.push(line[xName]);
+                    y.push((line[yName] - this.lines[index - 1][yName]) * 100 / this.lines[index - 1][yName] + "%");
+                });
+                break;
+            }
+        }
         return { x, y };
     }
 }
@@ -64,12 +85,12 @@ class DrawInfo {
         this.name = name;
     }
 
-    getTrace(xName, yName) {
-        const points = this.userfull.getPoints(xName, yName);
+    getTrace(xName, yName, yDataType) {
+        const points = this.userfull.getPoints(xName, yName, yDataType);
         return { "x": points.x, "y": points.y, name: this.name, showlegend: true, "type": "scatter" };
     }
 
-    getLayout(xTitle, yTitle) {
+    getLayout(xTitle, yTitle, yDataType) {
         let layout = {
             title: {
                 text: xTitle + "-" + yTitle
@@ -101,7 +122,16 @@ class DrawInfo {
             case "ranked 总分":
             case "total 总分": { delete layout.yaxis.exponentformat; break; }
         };
-
+        switch (yDataType) {
+            case "deltaVal": {
+                layout.yaxis.title.text += "增长值";
+                break;
+            }
+            case "deltaPer": {
+                layout.yaxis.title.text += "增长百分比(%)";
+                break;
+            }
+        }
         return layout;
     }
 }
