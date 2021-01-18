@@ -106,8 +106,25 @@
     </div>
     <br>
     <br>
-    <div id='graph' class="drsElement drsMoveHandle"
-        style='width: 1000px; height: 600px; border: 1px solid; top: 0px; left: 0px;'></div>
+    <div id='graph' class="drsElement" style='width: 1000px; height: 600px; border: 1px solid; top: 0px; left: 0px;'>
+        <div id="graphHoverArea"
+            style="width: 100%; height: 40px; float:left; top:0px; position: absolute; z-index: 5;">
+        </div>
+        <div id="graphMoveArea" class="drsMoveHandle" hidden>按住拖拽</div>
+    </div>
+
+    <script type="text/javascript">
+        $("#graphHoverArea").mouseenter(() => {
+            $("#graphHoverArea").hide();
+
+            $("#graphMoveArea").fadeIn("fast");
+        });
+        $("#graphMoveArea").mouseleave(() => {
+            $("#graphHoverArea").show();
+
+            $("#graphMoveArea").fadeOut("fast");
+        });
+    </script>
 
     <script type="text/javascript">
         var savedPlayers = JSON.parse(window.localStorage.getItem("savedPlayers")) || {};
@@ -274,7 +291,7 @@
             const ttr = $("<tr>", { style: "background-color:#9898f3; line-height:30px;" });
             let td = $("<td>", { text: "选择" }).appendTo(ttr);
             let selectAll = $("<input>", { id: "selectAll", type: "checkbox", style: "width: 20px; height:20px", text: " ", checked: true }).prependTo(td);
-            selectAll.click(function (){
+            selectAll.click(function () {
                 if ($(this).prop("checked")) {
                     $("input:checkbox:gt(0)", $("#playerlist")).prop("checked", true);
                 } else {

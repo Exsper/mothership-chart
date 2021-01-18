@@ -1,12 +1,22 @@
 .drsElement {
     position: absolute;
+    background-color: #FFF;
     border: 1px solid #333;
 }
 
 .drsMoveHandle {
-    height: 20px;
-    background-color: #FFF;
-    border-bottom: 1px solid #666;
+    height: 50px;
+    z-index: 9;
+    width: 100%;
+    top: 0px;
+    left: 0px;
+    float: left;
+    position: absolute;
+    font-size: 32px;
+    color: #da56a0;
+    text-align: center;
+    background-color: rgb(255, 202, 252);
+    border-bottom: 1px solid #AAA;
     cursor: move;
 }
 
