@@ -107,9 +107,7 @@
     <br>
     <br>
     <div id='graph' class="drsElement" style='width: 1000px; height: 600px; border: 1px solid; top: 0px; left: 0px;'>
-        <div id="graphHoverArea"
-            style="width: 100%; height: 40px; float:left; top:0px; position: absolute; z-index: 5;">
-        </div>
+        <div id="graphHoverArea" class="graphHoverArea"></div>
         <div id="graphMoveArea" class="drsMoveHandle" hidden>按住拖拽</div>
     </div>
 
@@ -394,6 +392,9 @@
             dragresize.maxLeft = window.innerWidth;
             dragresize.maxTop = window.innerHeight;
         });
+        dragresize.ondragend = function(isResize) {
+            if (isResize) Plotly.Plots.resize("graph");
+        };
     </script>
 
     <script type="text/javascript">
