@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<noscript>Your browser does not support JavaScript!</noscript>
+
+<head>
+    <title>mothership-chart</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="shortcut icon" href="../favicon.ico" />
+    <script type="text/javascript" src="../src/js/DrawInfo.js"></script>
+    <script type="text/javascript" src="../src/js/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.min.js" charset="utf-8"></script>
+</head>
+
+<body>
+    <div id="graph"></div>
+    <div id="info">
+    可用参数：
+    <br>
+    name - 玩家名，只用于显示
+    <br>
+    uid - 玩家uid，必要
+    <br>
+    mode - 模式，0-3
+    <br>
+    start - 起始日期，2011-06-11
+    <br>
+    end - 截止日期，2021-06-11，默认今日
+    <br>
+    xcor - x轴数据：dateString/pp/playcount/tth/rankedscore/totalscore/level
+    <br>
+    ycor - y轴数据：pp/rankworld/accuracy/playcount/tth/rankedscore/totalscore/level/SS/S/A/count50/count100/count300/tthpc/tthpp/pcpp
+    <br>
+    dataType - y轴数据类型：val/deltaVal/deltaPer
+    <br>
+    <br>
+    <br>
+    </div>
+    <script type="text/javascript">
+        const modeList = {
+            0: "Standard",
+            1: "Taiko",
+            2: "Catch",
+            3: "Mania",
+        }
+        const xcorList = {
+            dateString: "日期",
+            pp: "pp",
+            playcount: "pc",
+            tth: "tth",
+            rankedscore: "ranked 总分",
+            totalscore: "total 总分",
+            level: "等级",
+        }
+        const ycorList = {
+            pp: "pp",
+            rankworld: "rank",
+            accuracy: "acc",
+            playcount: "pc",
+            tth: "tth",
+            rankedscore: "ranked 总分",
+            totalscore: "total 总分",
+            level: "等级",
+            SS: "SS总数",
+            S: "S总数",
+            A: "A总数",
+            count50: "50总数",
+            count100: "100总数",
+            count300: "300总数",
+            tthpc: "tth/pc",
+            tthpp: "tth/pp",
+            pcpp: "pc/pp",
+        }
+        const ycorDataType = {
+            val: "原始数据",
+            deltaVal: "增长值",
+            deltaPer: "增长百分比",
+        }
+
+        function getQueryVariable() {
+            let params = {};
+            var query = window.location.search.substring(1);
+            var vars = query.split("&");
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split("=");
+                if (pair.length === 2) params[pair[0]] = pair[1];
+            }
+            return params;
+        }
+
+        function getDateString(date, isApi = false) {
+            const year = date.getFullYear().toString();
+            let month = (date.getMonth() + 1).toString();
+            if (month.length === 1) month = "0" + month;
+            let day = date.getDate().toString();
+            if (day.length === 1) day = "0" + day;
+            return (isApi) ? year + month + day : year + "-" + month + "-" + day;
+        }
+
+        function showError(s) {
+            document.write("ERROR: " + s);
+        }
+
+        function getJSONData(userId, startDate, endDate, mode, dateFixed = false, callback) {
+            const data = {};
+            data.start = getDateString(startDate, true);
+            data.limit = Math.ceil((endDate - startDate) / (1000 * 3600 * 24)) - 1;
+            data.mode = mode;
+            const url = `https://www.mothership.top/api/v1/userinfo/${userId}`;
+            $.ajax({
+                url: url,
+                data: data,
+                dataType: "json",
+                success: function (resp) {
+                    if (resp.code === 3 && !dateFixed) {
+                        // 起始时间过早
+                        const newStartDate = new Date(resp.data.year + "-" + resp.data.month + "-" + resp.data.day);
+                        getJSONData(userId, newStartDate, endDate, mode, true, callback)
+                    }
+                    else if (resp.code !== 0) showError(resp.status);
+                    else {
+                        callback(resp.data);
+                        return;
+                    }
+                },
+                error: function (xhr) {
+                    showError("从妈船获取数据失败（妈船api经常爆炸，过段时间再试试吧） " + xhr.statusText);
+                }
+            });
+        }
+
+        function main() {
+            const params = getQueryVariable();
+            if (Object.keys(params).length <= 0) return;
+            const username = params.name || "";
+            if (!params.uid) showError("uid不能为空");
+            const userId = params.uid;
+            const mode = parseInt(params.mode) || 0;
+            if (Object.keys(modeList).findIndex(item => mode.toString() === item) < 0) {showError("未知的mode"); return;}
+            const modeName = modeList[mode];
+            const start = params.start || "2012-01-01";
+            const startDate = new Date(start);
+            const end = params.end || getDateString(new Date());
+            const endDate = new Date(end);
+            const xName = params.xcor || "tth";
+            if (Object.keys(xcorList).findIndex(item => xName.toLowerCase() === item.toLowerCase()) < 0) {showError("未知的xcor"); return;}
+            const yName = params.ycor || "pp";
+            if (Object.keys(ycorList).findIndex(item => yName.toLowerCase() === item.toLowerCase()) < 0) {showError("未知的ycor"); return;}
+            const yDataType = params.dataType || "val";
+            if (Object.keys(ycorDataType).findIndex(item => yDataType.toLowerCase() === item.toLowerCase()) < 0) {showError("未知的dataType"); return;}
+            const xTitle = xcorList[xName];
+            const yTitle = ycorList[yName];
+            getJSONData(userId, startDate, endDate, mode, false, function (data) {
+                const user = new UserFull(data, startDate, endDate);
+                const drawInfo = new DrawInfo(userId, user, modeName + ": " + getDateString(startDate) + "~" + getDateString(endDate), username);
+                const trace = drawInfo.getTrace(xName, yName, yDataType);
+                const layout = drawInfo.getLayout(xTitle, yTitle, yDataType);
+                $("#info").remove();
+                Plotly.newPlot('graph', [trace], layout, { staticPlot: true });
+            });
+        }
+
+        main();
+    </script>
+
+</body>
+
+</html>
