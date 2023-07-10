@@ -128,7 +128,8 @@
     </script>
 
     <script type="text/javascript">
-        var savedPlayers = JSON.parse(window.localStorage.getItem("savedPlayers")) || {};
+        var lssp = window.localStorage.getItem("savedPlayers");
+        var savedPlayers = (lssp) ? JSON.parse(lssp) : {};
 
         function getUserInfoByApi(name, apikey, callback) {
             const url = "https://osu.ppy.sh/api/get_user";
@@ -223,7 +224,8 @@
         loadOsuApi();
 
 
-        function getPlaterName(uid) {
+        function getPlayerName(uid) {
+            if (!savedPlayers) return null;
             return savedPlayers[uid].name || null;
         }
 
@@ -346,7 +348,7 @@
                     else if (resp.code !== 0) $('#getDataConsole').text(resp.status);
                     else {
                         const user = new UserFull(resp.data, startDate, endDate);
-                        const username = getPlaterName(userId);
+                        const username = getPlayerName(userId);
                         const drawInfo = new DrawInfo(userId, user, $("#mode option[value=" + mode + "]").text() + ": " + getDateString(startDate) + "~" + getDateString(endDate), username);
                         mothershipData.push(drawInfo);
                         updateTable();
