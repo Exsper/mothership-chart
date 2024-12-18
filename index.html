@@ -406,7 +406,7 @@
         function downloadJSAtOnload() {
             $("#drawBtn").text("加载中，请稍等...");
             let element = document.createElement("script");
-            element.src = "https://cdn.plot.ly/plotly-latest.min.js";
+            element.src = "https://cdn.staticfile.net/plotly.js/1.58.5/plotly.min.js";
             element.onload = function () {
                 $('#drawBtn').attr("disabled", false);
                 $("#drawBtn").text("绘制折线图");
